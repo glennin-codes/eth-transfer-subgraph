@@ -1,29 +1,49 @@
-specVersion: 1.3.0
+specVersion: 1.0.0
 indexerHints:
   prune: auto
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum
-    name: FiatTokenProxy
+  # Data Source 1: Native ETH Transfers
+  - kind: ethereum/contract
+    name: NativeETH
     network: mainnet
     source:
-      address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
-      abi: FiatTokenProxy
-      startBlock: 6082465
+      address: "0x0000000000000000000000000000000000000000"  # ETH pseudo-address
+      abi: NativeETH
+      startBlock: 19200000  # Recent block for faster sync
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.9
+      apiVersion: 0.0.8
       language: wasm/assemblyscript
       entities:
-        - AdminChanged
-        - Upgraded
+        - Transfer
       abis:
-        - name: FiatTokenProxy
-          file: ./abis/FiatTokenProxy.json
+        - name: NativeETH
+          file: ./abis/NativeETH.json  # Custom ABI (see Step 3)
       eventHandlers:
-        - event: AdminChanged(address,address)
-          handler: handleAdminChanged
-        - event: Upgraded(address)
-          handler: handleUpgraded
-      file: ./src/fiat-token-proxy.ts
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleETHTranfer  # Separate handler for ETH
+      file: ./src/mapping.ts
+
+  # Data Source 2: USDC Transfers (ERC-20)
+  - kind: ethereum/contract
+    name: UsdcToken
+    network: mainnet
+    source:
+      address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"  # Ethereum USDC
+      abi: Usdc
+      startBlock: 11565019  # USDC deployment block
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.8
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+      abis:
+        - name: Usdc
+          file: ./abis/Usdc.json  # Standard ERC-20 ABI
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleUSDCTranfer  # Separate handler for USDC
+      file: ./src/mapping.ts
