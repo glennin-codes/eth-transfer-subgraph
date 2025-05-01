@@ -9,9 +9,9 @@ dataSources:
     name: NativeETH
     network: mainnet
     source:
-      address: "0x0000000000000000000000000000000000000000"  # ETH pseudo-address
-      abi: NativeETH
-      startBlock: 19200000  # Recent block for faster sync
+      address: "0x0000000000000000000000000000000000000000" # ETH transfers
+      abi: EthTransfer
+      startBlock: 19200000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -19,11 +19,11 @@ dataSources:
       entities:
         - Transfer
       abis:
-        - name: NativeETH
-          file: ./abis/NativeETH.json  # Custom ABI (see Step 3)
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleETHTranfer  # Separate handler for ETH
+        - name: EthTransfer
+          file: ./abis/EthTransfer.json
+      callHandlers:
+        - function: default()
+          handler: handleEthTransfer
       file: ./src/mapping.ts
 
   # Data Source 2: USDC Transfers (ERC-20)
@@ -31,9 +31,9 @@ dataSources:
     name: UsdcToken
     network: mainnet
     source:
-      address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"  # Ethereum USDC
+      address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" # Ethereum USDC
       abi: Usdc
-      startBlock: 11565019  # USDC deployment block
+      startBlock: 11565019 # USDC deployment block
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.8
@@ -42,8 +42,8 @@ dataSources:
         - Transfer
       abis:
         - name: Usdc
-          file: ./abis/Usdc.json  # Standard ERC-20 ABI
+          file: ./abis/Usdc.json # Standard ERC-20 ABI
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleUSDCTranfer  # Separate handler for USDC
+          handler: handleUSDCTransfer # Fixed handler name
       file: ./src/mapping.ts
